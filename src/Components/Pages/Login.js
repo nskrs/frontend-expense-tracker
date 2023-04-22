@@ -7,7 +7,6 @@ const Login = () => {
     let enteredpass = useRef();
     let enteredEmail = useRef();
     let enteredConfirmPass = useRef();
-
     let ctx=useContext(expContext);
     const history=useHistory();
     const submitHandler = async (e) => {
@@ -71,6 +70,7 @@ const Login = () => {
                     console.log(ctx)
                     alert("Logged In Successfully")
                     console.log("Logged In Successfully");
+                    localStorage.setItem("token",data.idToken);
                     try {
                         let responce = await fetch(
                             'https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyAVT99-GK2zBUOt69gM4rlulJJmZmwYgOU',
@@ -87,9 +87,6 @@ const Login = () => {
                         if (responce.ok) {
                             let data=await responce.json();
                             console.log(data.users[0])
-                            // data=JSON.parse( data.users[0].photoUrl)
-                            // ctx.setProfileInfo(data);
-                            // let newdata=JSON.parse(data.users[0].photoUrl)
                             ctx.setProfileInfo({myName:data.users[0].displayName,myUrl:data.users[0].photoUrl});
                             alert("request successfull")
                         } else {

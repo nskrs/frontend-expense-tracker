@@ -1,6 +1,5 @@
 import React, { useContext } from 'react'
 import { useHistory } from 'react-router-dom';
-
 import { expContext } from '../Store/ExpenseContext';
 import { Link } from 'react-router-dom';
 const Navbar = () => {
