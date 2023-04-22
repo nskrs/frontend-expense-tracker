@@ -1,4 +1,5 @@
 import React from 'react'
+
 const Navbar = () => {
     return (
         <div>
@@ -9,7 +10,7 @@ const Navbar = () => {
                     </button>
                     <div className="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                            {/* <li className="nav-item">
+                            <li className="nav-item">
                                 <a className="nav-link active text-primary" aria-current="page" href="/">MyWebLink</a>
                             </li>
                             <li className="nav-item">
@@ -17,10 +18,10 @@ const Navbar = () => {
                             </li>
                             <li className="nav-item">
                                 <a className="nav-link active" aria-current="page" href="/">Products</a>
-                            </li> */}
-                            {/* <li className="nav-item">
+                            </li>
+                            <li className="nav-item">
                                 <a className="nav-link active" aria-current="page" href="/">About Us</a>
-                            </li> */}
+                            </li>
 
                         </ul>
                     </div>
