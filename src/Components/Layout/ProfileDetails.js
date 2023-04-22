@@ -29,6 +29,7 @@ const ProfileDetails = () => {
             )
             if (responce.ok) {
                 let data = await responce.json();
+                alert("Updated Successfully")
                 console.log("Token:", data.photoUrl);
                  ctx.setProfileInfo({myName:data.displayName,myUrl:data.photoUrl})
             }  else {

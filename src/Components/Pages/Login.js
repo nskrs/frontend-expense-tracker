@@ -1,5 +1,5 @@
 import React, { useContext, useRef } from 'react'
-import { useHistory } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { expContext } from '../Store/ExpenseContext';
 import './Login.Module.css'
 
@@ -140,6 +140,7 @@ const Login = () => {
                     </div>}
                     <div >
                         <button className="btn btn-primary border w-100" onClick={submitHandler}>{!ctx.login ? "Sign Up" : "Login"}</button>
+                       {!ctx.login && <Link className='nav-link active' to="/forget">forget password?</Link>}
                     </div>
                 </form>
                 <div>
