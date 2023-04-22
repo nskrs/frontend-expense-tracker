@@ -1,31 +1,39 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import { useHistory } from 'react-router-dom';
-// import { expContext } from '../Store/ExpenseContext';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { authActions } from '../Store';
+import { authActions, themeActions } from '../Store';
+
+function CalculateTotalExpense(array){
+    let sum=0;
+    for (let i = 0; i < array.length; i++) {
+        sum=sum+parseInt(array[i].expenseAmount);
+    }
+    return sum;
+    }
+
 const Navbar = () => {
     const history = useHistory();
-    // const ctx = useContext(expContext);
-
-    const isLoggedIn=useSelector(state=>state.authentication.isLoggedIn)
+    const isLoggedIn=useSelector(state=>state.authentication.isLoggedIn);
+    const expenses = useSelector(state => state.expense.expenses);
+    const mode=useSelector(state=>state.theme.mode)
     let dispatch=useDispatch();
     const handleLogout = (e) => {
         e.preventDefault();
         localStorage.removeItem("token")
-        // ctx.setLogin(false);
         dispatch(authActions.loginFalse())
-        // ctx.setIsLoggedIn(false);
         dispatch(authActions.setIsloggedIn(false))
-        // ctx.setToken(null);
         dispatch(authActions.setToken(null))
         history.push('/')
-        // ctx.profileInfo({ myName: "", myUrl: "" });
         dispatch(authActions.setProfileInfo({ myName: "", myUrl: "" }))
+    }
+    const handleToggleMode = (e) => {
+        e.preventDefault();
+        dispatch(themeActions.setMode());
     }
     return (
         <div>
-            <nav className="navbar navbar-expand-lg navbar-light bg-light">
+            <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
                 <div className="container-fluid">
                     <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                         <span className="navbar-toggler-icon"></span>
@@ -51,7 +59,8 @@ const Navbar = () => {
                             </li>
                         </ul>
                         {isLoggedIn && <form className="form-inline my-2 my-lg-0">
-                            <button className='btn btn-primary' onClick={handleLogout}>Logout</button>
+                            {CalculateTotalExpense(expenses) >= 10000 && <button className='btn btn-primary mx-1' onClick={handleToggleMode}>{!mode?"Enable light mode":"Enable dark mode"}</button>}
+                            <button className='btn btn-primary mx-1' onClick={handleLogout}>Logout</button>
                         </form>}
                     </div>
                 </div>

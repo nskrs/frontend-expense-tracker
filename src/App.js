@@ -1,4 +1,4 @@
-import { Fragment, useContext } from 'react';
+import { Fragment } from 'react';
 import { useSelector } from 'react-redux';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import DummyScreen from './Components/Layout/DummyScreen';
@@ -7,15 +7,14 @@ import ProfileDetails from './Components/Layout/ProfileDetails';
 import Expenses from './Components/Pages/Expenses';
 import ForgetPasswordPage from './Components/Pages/ForgetPasswordPage';
 import Login from './Components/Pages/Login';
-import { counterActions } from './Components/Store';
 function App() {
   const token = useSelector(state => state.authentication.token);
   const isLoggedIn = useSelector(state => state.authentication.isLoggedIn);
-  
-  // let ctx = useContext(expContext);
+  const mode= useSelector(state => state.theme.mode);
   return (
-    <Fragment>
+    <div  className={!mode?'bg-secondary text-light':''} style={{height:"100vh"}}>
       <Navbar />
+      <div>
       <Switch>
         <Route exact path='/'>
           <Login />
@@ -35,7 +34,8 @@ function App() {
           {!isLoggedIn && <Redirect to='/' />}
         </Route>
       </Switch>
-    </Fragment>
+      </div>
+    </div>
   );
 }
 

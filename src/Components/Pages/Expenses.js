@@ -1,12 +1,59 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { expenseActions } from '../Store';
+import { expenseActions, themeActions } from '../Store';
+
+function CalculateTotalExpense(array) {
+    let sum = 0;
+    for (let i = 0; i < array.length; i++) {
+        sum = sum + parseInt(array[i].expenseAmount);
+    }
+    return sum;
+}
+
 
 
 
 const Expenses = () => {
-    const expenses=useSelector(state=>state.expense.expenses);
-    const dispatch=useDispatch();
+    const expenses = useSelector(state => state.expense.expenses);
+    const totalExpense = useSelector(state => state.expense.totalExpense);
+    const dispatch = useDispatch();
+
+
+    let data = [];
+    expenses.map((item) => {
+        data = [...data, ["Amount", item.expenseAmount], ["Description", item.expenseDesc], ["Catagory", item.expenseCatagory]]
+    })
+    // var csvFileData = data;
+
+    function download_csv_file() {
+        //define the heading for each row of the data  
+        var csv = 'Expense Detail,Value\n';
+
+        //merge the data with CSV  
+        data.forEach(function (row) {
+            csv += row.join(',');
+            csv += "\n";
+        });
+
+        //display the created CSV data on the web browser   
+        document.write(csv);
+
+
+        var hiddenElement = document.createElement('a');
+        hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+        // hiddenElement.target = '_blank';  
+
+        //provide the name for the CSV file to be downloaded  
+        hiddenElement.download = 'Expenses.csv';
+        hiddenElement.click();
+    }
+
+
+
+    const handleActive = (e) => {
+        e.preventDefault();
+        dispatch(themeActions.setMode());
+    }
     const handleDelete = async (expense) => {
         console.log(expense)
         try {
@@ -20,19 +67,17 @@ const Expenses = () => {
                 }
             )
             if (responce.ok) {
-                // alert("Deleted successfully")
                 const newExpenses = expenses.filter((item) => {
                     return item.Name !== expense.Name
                 })
-                // ctx.setExpenses(newExpenses);
                 dispatch(expenseActions.setExpenses(newExpenses))
+                // dispatch(expenseActions.setTotalExpense(CalculateTotalExpense(expenses)));
             } else {
                 throw new Error("Failed to delete expense")
             }
         } catch (error) {
             console.log(error)
         }
-
     }
     const handleEdit = async (expense) => {
         console.log(expense);
@@ -54,8 +99,32 @@ const Expenses = () => {
             )
             if (responce.ok) {
                 alert("Edited successfully");
-                let data=await responce.json();
+                let data = await responce.json();
                 console.log(data);
+                try {
+                    let responce = await fetch(
+                        'https://react-expense-tracker-34c17-default-rtdb.firebaseio.com/expenses.json',
+                        {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                        }
+                    )
+                    if (responce.ok) {
+                        let data = await responce.json();
+                        let finaldata = [];
+                        for (const key in data) {
+                            finaldata.push({ Name: key, ...data[key] })
+                        }
+                        dispatch(expenseActions.setExpenses(finaldata));
+                        // dispatch(expenseActions.setTotalExpense(CalculateTotalExpense(expenses)));
+                    } else {
+                        throw new Error("Failed to load previous expense")
+                    }
+                } catch (error) {
+                    console.log(error)
+                }
 
             } else {
                 throw new Error("Failed to Edit expense")
@@ -65,8 +134,9 @@ const Expenses = () => {
         }
 
     }
-    // const ctx = useContext(expContext);
-    useEffect(async () => {
+    useEffect(() => {
+
+        const fetchData = async () => {
             try {
                 let responce = await fetch(
                     'https://react-expense-tracker-34c17-default-rtdb.firebaseio.com/expenses.json',
@@ -90,7 +160,9 @@ const Expenses = () => {
             } catch (error) {
                 console.log(error)
             }
-        return ()=>{}
+        }
+        fetchData();
+        return () => { }
     }, [])
 
 
@@ -106,7 +178,7 @@ const Expenses = () => {
         }
 
         if (enteredaAmount.current.value.length > 0 && enteredaDesc.current.value.length > 0 && enteredaCatagory.current.value.length > 0) {
-           
+
             try {
                 let responce = await fetch(
                     'https://react-expense-tracker-34c17-default-rtdb.firebaseio.com/expenses.json',
@@ -125,8 +197,7 @@ const Expenses = () => {
                     let addedItem = { Name: data.name, ...newAddedExpense }
                     console.log(addedItem)
                     // console.log("Added Item",{Name:data.name,...newAddedExpense})
-                    // ctx.setExpenses([...expenses, addedItem])
-                    dispatch(expenseActions.setExpenses([...expenses,addedItem]))
+                    dispatch(expenseActions.setExpenses([...expenses, addedItem]))
                 } else {
                     throw new Error("Failed to add expense")
                 }
@@ -138,7 +209,11 @@ const Expenses = () => {
         }
     }
     return (
+
         <div className='container'>
+            <div>
+            {expenses.length > 0 && <button onClick={download_csv_file} className='btn btn-primary float-end'>Download Expenses</button>}
+            </div>
             <div className="row gx-3 gy-2 align-items-center mx-5 my-5">
                 <h1>Enter your expense</h1>
                 <form className="row gy-2 gx-3 align-items-center">
@@ -171,17 +246,18 @@ const Expenses = () => {
                     <div className="col-auto">
                     </div>
                     <div className="col-auto">
-                        <button type="submit" className="btn btn-primary" id="onSubmit" onClick={handleSubmitExpense}>Submit</button>
+                        <button type="submit" className="btn btn-primary mx-1" id="onSubmit" onClick={handleSubmitExpense}>Submit</button>
                     </div>
                 </form>
             </div>
+
             {expenses.length > 0 && <h1 className='text-center'>Expenses</h1>}
             <div className='row text-center '>{expenses.map((expense) => {
                 return <div key={Math.random()} className="card w-25 col-3">
                     <div className="card-body">
-                        <h5 className="card-title">Amount:<span className='text-primary'>{expense.expenseAmount}    </span></h5>
-                        <h5 className="card-title">Description:<span className='text-primary'>{expense.expenseDesc} </span></h5>
-                        <h5 className="card-title">Catagory:<span className='text-primary'>{expense.expenseCatagory}</span> </h5>
+                        <h5 className="card-title"><span className='text-primary'>Amount:{expense.expenseAmount}    </span></h5>
+                        <h5 className="card-title"><span className='text-primary'>Description:{expense.expenseDesc} </span></h5>
+                        <h5 className="card-title"><span className='text-primary'>Catagory:{expense.expenseCatagory}</span> </h5>
                         <span>
                             <button className='btn btn-danger mx-1 my-1' onClick={() => handleDelete(expense)}>DELETE</button>
                             <button className='btn btn-secondary mx-1 my-1' onClick={() => handleEdit(expense)}>EDIT</button>
@@ -189,6 +265,9 @@ const Expenses = () => {
                     </div>
                 </div>
             })}</div>
+            {expenses.length > 0 && <h1 className='text-center'>Total Expense Amount:{CalculateTotalExpense(expenses)} Rs.</h1>}
+            {CalculateTotalExpense(expenses) >= 10000 && <div className='text-center'><button className='btn btn-primary' onClick={handleActive}>Active Premium</button></div>}
+
         </div>
     )
 }
