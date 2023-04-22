@@ -7,11 +7,12 @@ const Navbar = () => {
     const ctx = useContext(expContext)
     const handleLogout = (e) => {
         e.preventDefault();
-        history.push('/')
+        localStorage.removeItem("token")
         ctx.setLogin(false);
+        ctx.setIsLoggedIn(false);
         ctx.setToken(null);
+        history.push('/')
         ctx.profileInfo({ myName: "", myUrl: "" });
-        console.log(ctx);
     }
     return (
         <div>
@@ -34,13 +35,13 @@ const Navbar = () => {
                                 <Link className="nav-link active" aria-current="page" exact to="/expenses">Expenses</Link>
                             </li>
                             <li className="nav-item">
-                                <Link className="nav-link active" aria-current="page" exact to="/">Products</Link>
+                                <Link className="nav-link active" aria-current="page" exact to="/profile">Profile</Link>
                             </li>
                             <li className="nav-item">
                                 <Link className="nav-link active" aria-current="page" exact to="/">About Us</Link>
                             </li>
                         </ul>
-                        {ctx.token && <form className="form-inline my-2 my-lg-0">
+                        {ctx.isLoggedIn && <form className="form-inline my-2 my-lg-0">
                             <button className='btn btn-primary' onClick={handleLogout}>Logout</button>
                         </form>}
                     </div>

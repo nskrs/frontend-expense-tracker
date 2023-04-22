@@ -7,8 +7,8 @@ const Login = () => {
     let enteredpass = useRef();
     let enteredEmail = useRef();
     let enteredConfirmPass = useRef();
-    let ctx=useContext(expContext);
-    const history=useHistory();
+    let ctx = useContext(expContext);
+    const history = useHistory();
     const submitHandler = async (e) => {
         e.preventDefault();
         if (!ctx.login) {
@@ -31,8 +31,9 @@ const Login = () => {
 
                     if (responce.ok) {
                         let data = await responce.json();
-                        console.log("Authantication Token:",ctx.token);
+                        console.log("Authantication Token:", ctx.token);
                         ctx.setToken(data.idToken);
+                        localStorage.setItem("token", data.idToken);
                         alert("User has signed Up")
                         console.log("User has signed Up");
                     } else {
@@ -66,18 +67,18 @@ const Login = () => {
                 if (responce.ok) {
                     let data = await responce.json();
                     console.log("Authantication Token:", data.idToken);
-                    ctx.setToken(data.idToken);
+                    localStorage.setItem("token", data.idToken);
+   
                     console.log(ctx)
                     alert("Logged In Successfully")
                     console.log("Logged In Successfully");
-                    localStorage.setItem("token",data.idToken);
                     try {
                         let responce = await fetch(
                             'https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyAVT99-GK2zBUOt69gM4rlulJJmZmwYgOU',
                             {
                                 method: 'POST',
                                 body: JSON.stringify({
-                                    idToken:data.idToken,
+                                    idToken: data.idToken,
                                 }),
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -85,10 +86,12 @@ const Login = () => {
                             }
                         )
                         if (responce.ok) {
-                            let data=await responce.json();
+                            let data = await responce.json();
                             console.log(data.users[0])
-                            ctx.setProfileInfo({myName:data.users[0].displayName,myUrl:data.users[0].photoUrl});
+                            ctx.setProfileInfo({ myName: data.users[0].displayName, myUrl: data.users[0].photoUrl });
                             alert("request successfull")
+                            ctx.setToken(() => localStorage.getItem("token"));
+                            ctx.setIsLoggedIn(() => true);
                         } else {
                             throw new Error("Failed")
                         }
@@ -111,7 +114,7 @@ const Login = () => {
 
     return (
         <div>
-            {!ctx.token && <section className="auth">
+            { <section className="auth">
                 <h2 className='my-3'>{!ctx.login ? "Sign Up" : "Log In"}</h2>
                 <form >
                     <div className="control">
@@ -137,7 +140,7 @@ const Login = () => {
                     </div>}
                     <div >
                         <button className="btn btn-primary border w-100" onClick={submitHandler}>{!ctx.login ? "Sign Up" : "Login"}</button>
-                       {ctx.login && <Link className='nav-link active' to="/forget">forget password?</Link>}
+                        {ctx.login && <Link className='nav-link active' to="/forget">forget password?</Link>}
                     </div>
                 </form>
                 <div>
@@ -148,9 +151,10 @@ const Login = () => {
                         {!ctx.login ? "Have an account?Login" : "Don't have an account?Sign up"}
                     </button>
                 </div>
-            </section> }
+            </section>}
         </div>
     )
 }
 
 export default Login
+

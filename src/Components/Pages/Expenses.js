@@ -1,12 +1,69 @@
-import React, { useContext, useEffect, useRef } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { expContext } from '../Store/ExpenseContext';
 
 
 
 const Expenses = () => {
+    const [editFormOpen,setEditFormOpen]=useState(false);
+    const handleDelete = async (expense) => {
+        console.log(expense)
+        try {
+            let responce = await fetch(
+                `https://react-expense-tracker-34c17-default-rtdb.firebaseio.com/expenses/${expense.Name}.json`,
+                {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            )
+            if (responce.ok) {
+                // alert("Deleted successfully")
+                const newExpenses = ctx.expenses.filter((item) => {
+                    return item.Name !== expense.Name
+                })
+                ctx.setExpenses(newExpenses);
+            } else {
+                throw new Error("Failed to delete expense")
+            }
+        } catch (error) {
+            console.log(error)
+        }
+
+    }
+    const handleEdit = async (expense) => {
+        console.log(expense);
+        const editedExpense = {
+            expenseAmount: enteredaAmount.current.value,
+            expenseDesc: enteredaDesc.current.value,
+            expenseCatagory: enteredaCatagory.current.value
+        }
+        try {
+            let responce = await fetch(
+                `https://react-expense-tracker-34c17-default-rtdb.firebaseio.com/expenses/${expense.Name}.json`,
+                {
+                    method: 'PUT',
+                    body: JSON.stringify(editedExpense),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            )
+            if (responce.ok) {
+                alert("Edited successfully");
+                let data=await responce.json();
+                console.log(data);
+
+            } else {
+                throw new Error("Failed to Edit expense")
+            }
+        } catch (error) {
+            console.log(error)
+        }
+
+    }
     const ctx = useContext(expContext);
-    useEffect( () => {
-        async function fetchData(){
+    useEffect(async () => {
             try {
                 let responce = await fetch(
                     'https://react-expense-tracker-34c17-default-rtdb.firebaseio.com/expenses.json',
@@ -19,10 +76,9 @@ const Expenses = () => {
                 )
                 if (responce.ok) {
                     let data = await responce.json();
-                    console.log(data);
                     let finaldata = [];
                     for (const key in data) {
-                        finaldata.push(data[key])
+                        finaldata.push({ Name: key, ...data[key] })
                     }
                     ctx.setExpenses(finaldata)
                 } else {
@@ -31,12 +87,10 @@ const Expenses = () => {
             } catch (error) {
                 console.log(error)
             }
-        }
-        fetchData();
-        return () => { }
+        return ()=>{}
     }, [])
 
-   
+
     const enteredaAmount = useRef();
     const enteredaDesc = useRef();
     const enteredaCatagory = useRef();
@@ -49,7 +103,7 @@ const Expenses = () => {
         }
 
         if (enteredaAmount.current.value.length > 0 && enteredaDesc.current.value.length > 0 && enteredaCatagory.current.value.length > 0) {
-            console.log(newAddedExpense);
+            // console.log(newAddedExpense);
             try {
                 let responce = await fetch(
                     'https://react-expense-tracker-34c17-default-rtdb.firebaseio.com/expenses.json',
@@ -63,9 +117,12 @@ const Expenses = () => {
                 )
                 if (responce.ok) {
                     let data = await responce.json();
-                    console.log(data);
+                    // console.log("Added Item",data);
                     alert("added expanse successfully");
-                    ctx.setExpenses([...ctx.expenses, newAddedExpense])
+                    let addedItem = { Name: data.name, ...newAddedExpense }
+                    console.log(addedItem)
+                    // console.log("Added Item",{Name:data.name,...newAddedExpense})
+                    ctx.setExpenses([...ctx.expenses, addedItem])
                 } else {
                     throw new Error("Failed to add expense")
                 }
@@ -116,11 +173,15 @@ const Expenses = () => {
             </div>
             {ctx.expenses.length > 0 && <h1 className='text-center'>Expenses</h1>}
             <div className='row text-center '>{ctx.expenses.map((expense) => {
-                return <div key={Math.random()} className="card w-25 col-4 mx-3 my-3">
+                return <div key={Math.random()} className="card w-25 col-3">
                     <div className="card-body">
                         <h5 className="card-title">Amount:<span className='text-primary'>{expense.expenseAmount}    </span></h5>
                         <h5 className="card-title">Description:<span className='text-primary'>{expense.expenseDesc} </span></h5>
                         <h5 className="card-title">Catagory:<span className='text-primary'>{expense.expenseCatagory}</span> </h5>
+                        <span>
+                            <button className='btn btn-danger mx-1 my-1' onClick={() => handleDelete(expense)}>DELETE</button>
+                            <button className='btn btn-secondary mx-1 my-1' onClick={() => handleEdit(expense)}>EDIT</button>
+                        </span>
                     </div>
                 </div>
             })}</div>

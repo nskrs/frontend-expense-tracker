@@ -8,7 +8,7 @@ import ForgetPasswordPage from './Components/Pages/ForgetPasswordPage';
 import Login from './Components/Pages/Login';
 import { expContext } from './Components/Store/ExpenseContext';
 function App() {
-  let ctx=useContext(expContext);
+  let ctx = useContext(expContext);
   return (
     <Fragment>
       <Navbar />
@@ -20,18 +20,17 @@ function App() {
           <ForgetPasswordPage />
         </Route>
         <Route exact path='/profile'>
-          <DummyScreen />
+          {ctx.token && <DummyScreen />}
+          {!ctx.token && <Redirect to='/' />}
         </Route>
         <Route exact path='/details'>
           <ProfileDetails />
         </Route>
         <Route exact path='/expenses'>
-          {ctx.token && <Expenses />}
-          {!ctx.token && <Redirect to='/'/>}
+          {ctx.isLoggedIn && <Expenses />}
+          {!ctx.isLoggedIn && <Redirect to='/' />}
         </Route>
-
       </Switch>
-
     </Fragment>
   );
 }
