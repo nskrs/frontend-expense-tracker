@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import DummyScreen from '../Layout/DummyScreen';
+import { useHistory } from 'react-router-dom';
 import './Login.Module.css'
 
 const Login = () => {
@@ -9,6 +9,7 @@ const Login = () => {
     const [login, setLogin] = useState(false);
     const [token, setToken] = useState(null);
 
+    const history=useHistory();
     const submitHandler = async (e) => {
         e.preventDefault();
         if (!login) {
@@ -31,10 +32,10 @@ const Login = () => {
 
                     if (responce.ok) {
                         let data = await responce.json();
-                        console.log("Authantication Token:", data.idToken);
+                        setToken(data.idToken);
+                        console.log("Authantication Token:",token);
                         alert("User has signed Up")
                         console.log("User has signed Up");
-                        setToken(data.idToken);
                     } else {
                         let errorMessage = 'Authentication failed!';
                         alert(errorMessage);
@@ -69,6 +70,7 @@ const Login = () => {
                     console.log("Authantication Token:", token);
                     alert("Logged In Successfully")
                     console.log("Logged In Successfully");
+                    history.push('/profile')
                 } else {
                     let errorMessage = 'Authentication failed!';
                     alert(errorMessage);
@@ -121,7 +123,6 @@ const Login = () => {
                     </button>
                 </div>
             </section> }
-            {token && <DummyScreen/>}
         </div>
     )
 }
