@@ -1,12 +1,16 @@
-import React, { useContext, useRef } from 'react'
+import React, { useRef } from 'react'
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'
-import { expContext } from '../Store/ExpenseContext';
+import { authActions } from '../Store';
 
 const ProfileDetails = () => {
+    const token = useSelector(state => state.authentication.token);
+    const profileInfo = useSelector(state => state.authentication.profileInfo);
+    const dispatch=useDispatch();
     let userName = useRef();
     let profileUrl = useRef();
     // let data= JSON.stringify({myName:userName.current.value,myUrl:profileUrl.current.value});
-    const ctx=useContext(expContext);
+    // const ctx=useContext(expContext);
     const handleUpdate = async (e) => {
         e.preventDefault();
         console.log(userName.current.value, profileUrl.current.value);
@@ -16,7 +20,7 @@ const ProfileDetails = () => {
                 {
                     method: 'POST',
                     body: JSON.stringify({
-                        idToken:ctx.token,
+                        idToken:token,
                         displayName: userName.current.value,
                         photoUrl: profileUrl.current.value,
                         // photoUrl: data,
@@ -31,7 +35,8 @@ const ProfileDetails = () => {
                 let data = await responce.json();
                 alert("Updated Successfully")
                 console.log("Token:", data.photoUrl);
-                 ctx.setProfileInfo({myName:data.displayName,myUrl:data.photoUrl})
+                //  ctx.setProfileInfo({myName:data.displayName,myUrl:data.photoUrl})
+                dispatch(authActions.setProfileInfo({myName:data.displayName,myUrl:data.photoUrl}))
             }  else {
                 let errorMessage = 'failed!';
                 alert(errorMessage);
@@ -47,7 +52,7 @@ const ProfileDetails = () => {
             <div className='row'>
             <span className="fst-italic h1 col-sm-6" >
                 Welcome to expanse tracker!!!
-                {console.log(ctx.profileInfo)}
+                {/* {console.log(ctx.profileInfo)} */}
             </span>
             <span className='fst-italic bg-warning col-sm-6 float-end'>Your profile is 64% complete.A complete profile has higher chances of landing a job.<Link className='text-primary' to="/details">Complete now</Link></span>
             </div>
@@ -64,7 +69,7 @@ const ProfileDetails = () => {
                         </svg>
                         Full Name:
                     </label>
-                    <input type="text" className="form-control" placeholder={ctx.profileInfo.myName} id="exampleInputEmail1" aria-describedby="emailHelp" ref={userName}   />
+                    <input type="text" className="form-control" placeholder={profileInfo.myName} id="exampleInputEmail1" aria-describedby="emailHelp" ref={userName}   />
                 </div>
                 <div className="mb-3">
                     <label htmlFor="exampleInputPassword1" className="form-label">
@@ -73,7 +78,7 @@ const ProfileDetails = () => {
                         </svg>
                         Profile photo URL:
                     </label>
-                    <input type="url" className="form-control" placeholder={ctx.profileInfo.myUrl} id="exampleInputPassword1" ref={profileUrl}/>
+                    <input type="url" className="form-control" placeholder={profileInfo.myUrl} id="exampleInputPassword1" ref={profileUrl}/>
                 </div>
                 <button type="submit" className="btn btn-primary" onClick={handleUpdate}>Update</button>
                 <hr />

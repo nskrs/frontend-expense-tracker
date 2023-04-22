@@ -1,18 +1,27 @@
 import React, { useContext } from 'react'
 import { useHistory } from 'react-router-dom';
-import { expContext } from '../Store/ExpenseContext';
+// import { expContext } from '../Store/ExpenseContext';
 import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { authActions } from '../Store';
 const Navbar = () => {
     const history = useHistory();
-    const ctx = useContext(expContext)
+    // const ctx = useContext(expContext);
+
+    const isLoggedIn=useSelector(state=>state.authentication.isLoggedIn)
+    let dispatch=useDispatch();
     const handleLogout = (e) => {
         e.preventDefault();
         localStorage.removeItem("token")
-        ctx.setLogin(false);
-        ctx.setIsLoggedIn(false);
-        ctx.setToken(null);
+        // ctx.setLogin(false);
+        dispatch(authActions.loginFalse())
+        // ctx.setIsLoggedIn(false);
+        dispatch(authActions.setIsloggedIn(false))
+        // ctx.setToken(null);
+        dispatch(authActions.setToken(null))
         history.push('/')
-        ctx.profileInfo({ myName: "", myUrl: "" });
+        // ctx.profileInfo({ myName: "", myUrl: "" });
+        dispatch(authActions.setProfileInfo({ myName: "", myUrl: "" }))
     }
     return (
         <div>
@@ -41,7 +50,7 @@ const Navbar = () => {
                                 <Link className="nav-link active" aria-current="page" exact to="/">About Us</Link>
                             </li>
                         </ul>
-                        {ctx.isLoggedIn && <form className="form-inline my-2 my-lg-0">
+                        {isLoggedIn && <form className="form-inline my-2 my-lg-0">
                             <button className='btn btn-primary' onClick={handleLogout}>Logout</button>
                         </form>}
                     </div>

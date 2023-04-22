@@ -1,17 +1,28 @@
-import React, { useContext, useRef } from 'react'
+import React, { useRef } from 'react'
+import { useDispatch, useSelector } from 'react-redux';
 import { Link, useHistory } from 'react-router-dom';
-import { expContext } from '../Store/ExpenseContext';
+import { authActions } from '../Store';
 import './Login.Module.css'
 
 const Login = () => {
+    const dispatch=useDispatch();
+    const login=useSelector(state=>state.authentication.login)
+    const token=useSelector(state=>state.authentication.token)
+    const handleLogin=()=>{
+        if(login){
+            dispatch(authActions.loginFalse())
+        }else{
+            dispatch(authActions.loginTrue())
+        }
+    }
     let enteredpass = useRef();
     let enteredEmail = useRef();
     let enteredConfirmPass = useRef();
-    let ctx = useContext(expContext);
+    // let ctx = useContext(expContext);
     const history = useHistory();
     const submitHandler = async (e) => {
         e.preventDefault();
-        if (!ctx.login) {
+        if (!login) {
             if (enteredEmail.current.value.length > 0 && enteredpass.current.value.length > 0 && enteredConfirmPass.current.value.length > 0) {
                 if (enteredpass.current.value === enteredConfirmPass.current.value) {
                     let responce = await fetch(
@@ -31,8 +42,9 @@ const Login = () => {
 
                     if (responce.ok) {
                         let data = await responce.json();
-                        console.log("Authantication Token:", ctx.token);
-                        ctx.setToken(data.idToken);
+                        console.log("Authantication Token:", token);
+                        // ctx.setToken(data.idToken);
+                        dispatch(authActions.setToken(data.idToken))
                         localStorage.setItem("token", data.idToken);
                         alert("User has signed Up")
                         console.log("User has signed Up");
@@ -68,8 +80,8 @@ const Login = () => {
                     let data = await responce.json();
                     console.log("Authantication Token:", data.idToken);
                     localStorage.setItem("token", data.idToken);
-   
-                    console.log(ctx)
+
+                    // console.log(ctx)
                     alert("Logged In Successfully")
                     console.log("Logged In Successfully");
                     try {
@@ -88,10 +100,13 @@ const Login = () => {
                         if (responce.ok) {
                             let data = await responce.json();
                             console.log(data.users[0])
-                            ctx.setProfileInfo({ myName: data.users[0].displayName, myUrl: data.users[0].photoUrl });
+                            // ctx.setProfileInfo({ myName: data.users[0].displayName, myUrl: data.users[0].photoUrl });
+                            dispatch(authActions.setProfileInfo({ myName: data.users[0].displayName, myUrl: data.users[0].photoUrl }))
                             alert("request successfull")
-                            ctx.setToken(() => localStorage.getItem("token"));
-                            ctx.setIsLoggedIn(() => true);
+                            // ctx.setToken(() => localStorage.getItem("token"));
+                            dispatch(authActions.setToken(localStorage.getItem("token")))
+                            // ctx.setIsLoggedIn(() => true);
+                            dispatch(authActions.setIsloggedIn(true))
                         } else {
                             throw new Error("Failed")
                         }
@@ -108,14 +123,12 @@ const Login = () => {
                 alert("please fill all the data")
             }
         }
-
-
     }
 
     return (
         <div>
-            { <section className="auth">
-                <h2 className='my-3'>{!ctx.login ? "Sign Up" : "Log In"}</h2>
+            <section className="auth">
+                <h2 className='my-3'>{!login ? "Sign Up" : "Log In"}</h2>
                 <form >
                     <div className="control">
                         <input type='email' id='email' placeholder='Email' ref={enteredEmail} />
@@ -129,7 +142,7 @@ const Login = () => {
                             ref={enteredpass}
                         />
                     </div>
-                    {!ctx.login && <div className="control">
+                    {!login && <div className="control">
                         <input
                             type='password'
                             id='password'
@@ -139,19 +152,19 @@ const Login = () => {
                         />
                     </div>}
                     <div >
-                        <button className="btn btn-primary border w-100" onClick={submitHandler}>{!ctx.login ? "Sign Up" : "Login"}</button>
-                        {ctx.login && <Link className='nav-link active' to="/forget">forget password?</Link>}
+                        <button className="btn btn-primary border w-100" onClick={submitHandler}>{!login ? "Sign Up" : "Login"}</button>
+                        {login && <Link className='nav-link active' to="/forget">forget password?</Link>}
                     </div>
                 </form>
                 <div>
                     <button
-                        onClick={() => { ctx.setLogin(!ctx.login) }}
+                        onClick={handleLogin}
                         type="button"
                         className="btn btn-outline-success my-3 w-100">
-                        {!ctx.login ? "Have an account?Login" : "Don't have an account?Sign up"}
+                        {!login ? "Have an account?Login" : "Don't have an account?Sign up"}
                     </button>
                 </div>
-            </section>}
+            </section>
         </div>
     )
 }
