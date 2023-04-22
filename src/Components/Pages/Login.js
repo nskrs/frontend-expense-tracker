@@ -140,7 +140,7 @@ const Login = () => {
                     </div>}
                     <div >
                         <button className="btn btn-primary border w-100" onClick={submitHandler}>{!ctx.login ? "Sign Up" : "Login"}</button>
-                       {!ctx.login && <Link className='nav-link active' to="/forget">forget password?</Link>}
+                       {ctx.login && <Link className='nav-link active' to="/forget">forget password?</Link>}
                     </div>
                 </form>
                 <div>

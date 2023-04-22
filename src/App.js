@@ -1,11 +1,14 @@
-import { Fragment } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Fragment, useContext } from 'react';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import DummyScreen from './Components/Layout/DummyScreen';
 import Navbar from './Components/Layout/Navbar'
 import ProfileDetails from './Components/Layout/ProfileDetails';
+import Expenses from './Components/Pages/Expenses';
 import ForgetPasswordPage from './Components/Pages/ForgetPasswordPage';
 import Login from './Components/Pages/Login';
+import { expContext } from './Components/Store/ExpenseContext';
 function App() {
+  let ctx=useContext(expContext);
   return (
     <Fragment>
       <Navbar />
@@ -21,6 +24,10 @@ function App() {
         </Route>
         <Route exact path='/details'>
           <ProfileDetails />
+        </Route>
+        <Route exact path='/expenses'>
+          {ctx.token && <Expenses />}
+          {!ctx.token && <Redirect to='/'/>}
         </Route>
 
       </Switch>

@@ -1,6 +1,8 @@
 import React, { useContext } from 'react'
 import { useHistory } from 'react-router-dom';
+
 import { expContext } from '../Store/ExpenseContext';
+import { Link } from 'react-router-dom';
 const Navbar = () => {
     const history = useHistory();
     const ctx = useContext(expContext)
@@ -22,18 +24,21 @@ const Navbar = () => {
                     <div className="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                             <li className="nav-item">
-                                <a className="nav-link active text-primary" aria-current="page" href="/">
+                                <Link className="nav-link active text-primary" aria-current="page" to="/">
                                     MyWebLink
-                                    </a>
+                                </Link>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link active" aria-current="page" href="/">Home</a>
+                                <Link className="nav-link active" aria-current="page" exact to="/">Home</Link>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link active" aria-current="page" href="/">Products</a>
+                                <Link className="nav-link active" aria-current="page" exact to="/expenses">Expenses</Link>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link active" aria-current="page" href="/">About Us</a>
+                                <Link className="nav-link active" aria-current="page" exact to="/">Products</Link>
+                            </li>
+                            <li className="nav-item">
+                                <Link className="nav-link active" aria-current="page" exact to="/">About Us</Link>
                             </li>
                         </ul>
                         {ctx.token && <form className="form-inline my-2 my-lg-0">
